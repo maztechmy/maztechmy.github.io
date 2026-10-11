@@ -169,10 +169,34 @@ dialog .sum{margin:6px 0 18px;color:var(--muted);font-size:15px}
 .field{display:grid;gap:5px;margin-bottom:14px;font-size:15px}
 .field label{font-weight:600}
 .field input,.field textarea{font:inherit;font-size:16px;padding:10px 12px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
-.field textarea{min-height:92px;font-family:Consolas,"Archivo",monospace;font-size:15px}
+.field textarea{min-height:48px;resize:vertical;font-family:Consolas,"Archivo",monospace;font-size:15px}
 .field input:focus,.field textarea:focus{border-color:var(--slate);outline:none;box-shadow:0 0 0 3px rgba(78,81,112,.2)}
 .field .hint{font-size:13px;color:var(--muted)}
 .err{color:var(--red);font-size:14px;min-height:20px;margin:-4px 0 10px}
+.ids{display:grid;gap:8px}
+.proof{margin:-2px 0 14px;padding:12px 14px;border-left:3px solid var(--slate);background:#F7F8FB;border-radius:4px;font-size:14px;color:var(--muted)}
+.proof > b:first-child{display:block;color:var(--ink);margin-bottom:3px}
+.proof[hidden]{display:none}
+.addpc{justify-self:start;padding:7px 14px;font-size:14px;margin-top:2px}
+.field[hidden],.btn[hidden]{display:none}
+.idrow{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center}
+.idrow span{font-size:14px;color:var(--muted)}
+.idrow.one{grid-template-columns:1fr}
+.idrow.one span{display:none}
+.field .idrow input{font-family:Consolas,"Archivo",monospace;letter-spacing:.03em}
+/* how to find the computer ID */
+.idhelp{margin-top:8px;border:1px solid var(--line);border-radius:6px;background:#F7F8FB;font-size:14px}
+.idhelp summary{cursor:pointer;padding:9px 12px;font-weight:600;color:var(--slate-deep)}
+.idhelp ol{margin:0;padding:0 14px 4px 32px;display:grid;gap:5px}
+.idhelp .note{padding:6px 12px 12px}
+.win{margin:10px 12px 12px;border-radius:6px;overflow:hidden;background:#4E5170;color:#F2F3F8;font-size:12px;box-shadow:0 2px 8px rgba(29,32,51,.25)}
+.win .tb{background:#1D2033;color:#fff;padding:6px 10px;font-size:12px}
+.win .body{padding:10px 12px}
+.win .row{display:flex;gap:8px;align-items:center;margin-top:6px}
+.win .idbox{background:#5E6286;border:1px solid #8C90B4;border-radius:3px;padding:4px 8px;font-family:Consolas,monospace;font-size:12px}
+.win .copy{border:1px solid #8C90B4;background:#6A6E94;border-radius:3px;padding:3px 10px;outline:2px solid #FFD54F;outline-offset:2px}
+.win .foot{background:#444764;color:#C4C7DA;padding:5px 10px;text-align:right;font-size:11px}
+.win .foot b{color:#FFD54F;font-weight:600;text-decoration:underline}
 .dlg-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
 </style>
 </head>
@@ -287,9 +311,9 @@ dialog .sum{margin:6px 0 18px;color:var(--muted);font-size:15px}
       <div class="plan">
         <h3>Company</h3>
         <div class="price">RM 1,500 <small>a year</small></div>
-        <div class="was">Unlimited PCs</div>
+        <div class="was">Up to 20 PCs</div>
         <ul>
-          <li>Every PC in your company</li>
+          <li>Up to 20 PCs in one key</li>
           <li>All updates while active</li>
           <li>Renew yearly</li>
           <li>Quotation, PO and invoice</li>
@@ -299,16 +323,17 @@ dialog .sum{margin:6px 0 18px;color:var(--muted);font-size:15px}
       <div class="plan">
         <h3>Student</h3>
         <div class="price">RM 49 <small>a year</small></div>
-        <div class="was">Maztech Academy students</div>
+        <div class="was">With matric card or offer letter</div>
         <ul>
           <li>1 PC</li>
           <li>All tools for 12 months</li>
           <li>For learning and coursework</li>
+          <li>Proof of student status needed</li>
         </ul>
         <button class="btn" data-buy="student">Buy Student</button>
       </div>
     </div>
-    <p class="plans-note">After 12 months your tools keep working on the version you have. To get newer versions, renew updates for RM 59 per PC a year. Need a quotation first? Email <a data-email href="#">izaniofficial@gmail.com</a>.</p>
+    <p class="plans-note">After 12 months your tools keep working on the version you have. To get newer versions, renew updates for RM 59 per PC a year. Need a quotation first, or more than 20 PCs? Email <a data-email href="#">izaniofficial@gmail.com</a>.</p>
   </div>
 </section>
 
@@ -356,7 +381,26 @@ dialog .sum{margin:6px 0 18px;color:var(--muted);font-size:15px}
     <div class="field"><label for="o-email">Email for the licence file</label><input id="o-email" type="email" autocomplete="email" required></div>
     <div class="field"><label for="o-phone">Phone (WhatsApp)</label><input id="o-phone" type="tel" autocomplete="tel"></div>
     <div class="field" id="f-company"><label for="o-company">Company <span class="hint">(for the invoice)</span></label><input id="o-company" autocomplete="organization"></div>
-    <div class="field" id="f-ids"><label for="o-ids">Computer ID</label><textarea id="o-ids" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX"></textarea><span class="hint" id="o-ids-hint">From About / Support at the bottom of any IZA window.</span></div>
+    <div class="field" id="f-inst" hidden><label for="o-inst">University, college or training centre</label><input id="o-inst" autocomplete="organization"></div>
+    <div class="proof" id="f-proof" hidden><b>Proof of student status</b>After payment, send a photo of your <b>matric card</b> or <b>offer letter</b> with your order on WhatsApp or email. Your licence is issued once it is checked; if it cannot be accepted, your payment is refunded in full.</div>
+    <div class="field" id="f-ids"><label id="o-ids-label" for="o-id-0">Computer ID</label><div class="ids" id="o-ids"></div><button type="button" class="btn ghost addpc" id="o-add" hidden>Add another PC</button><span class="hint" id="o-ids-hint">It looks like 1A2B-3C4D-5E6F-7A8B and is different on every PC.</span>
+      <details class="idhelp" id="idhelp">
+        <summary>How do I find my computer ID?</summary>
+        <ol>
+          <li>Install the free trial and open Navisworks Manage on the PC that will use the licence.</li>
+          <li>Click any button on the IZA tab, e.g. Model Files.</li>
+          <li>At the bottom right of that window click <b>About / Support</b>, then <b>Yes</b>.</li>
+          <li>In the licence window click <b>Copy</b> next to your computer ID and paste it here.</li>
+        </ol>
+        <div class="win" aria-hidden="true">
+          <div class="tb">Licence - IZA Coordination Tools</div>
+          <div class="body">Trial: 14 day(s) left<br><br>Your computer ID (send this when ordering a key):
+            <div class="row"><span class="idbox">1A2B-3C4D-5E6F-7A8B</span><span class="copy">Copy</span></div>
+          </div>
+          <div class="foot">Trial: 14 day(s) left &nbsp;|&nbsp; IZA Coordination Tools v0.3 by Maztech &nbsp;|&nbsp; <b>About / Support</b></div>
+        </div>
+        <p class="note">Tip: the <b>Buy licence...</b> button in that licence window opens this page with your ID already filled in.</p>
+      </details></div>
     <p class="err" id="o-err" role="alert"></p>
     <div class="dlg-actions">
       <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
@@ -465,7 +509,7 @@ if (launch) {
 const PLANS = {
   personal:{title:"Personal", price: launch ? "RM 99 (launch price)" : "RM 149", ids:1, key: launch ? "launch" : "personal"},
   team:    {title:"Team 5", price:"RM 599", ids:5, key:"team"},
-  company: {title:"Company", price:"RM 1,500 a year", ids:0, key:"company"},
+  company: {title:"Company", price:"RM 1,500 a year", ids:20, start:3, key:"company"},
   student: {title:"Student", price:"RM 49 a year", ids:1, key:"student"}
 };
 const idFromUrl = new URLSearchParams(location.search).get("id") || "";
@@ -474,16 +518,62 @@ const dlg = $("#order");
 function store(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
 function load(k){ try { return JSON.parse(localStorage.getItem(k) || "null"); } catch(e){ return null; } }
 
+// One box per PC; typing is formatted as XXXX-XXXX-XXXX-XXXX, pasting several IDs fills the next boxes.
+function fmtId(v){ const h = v.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 16); return (h.match(/.{1,4}/g) || []).join("-"); }
+// max = most PCs the plan allows; start = boxes shown at first (Company starts with 3 and adds more on request).
+function buildIds(max, values, start){
+  const host = $("#o-ids"); host.innerHTML = "";
+  const first = Math.min(max, Math.max(start || max, values.length));
+  function addRow(value){
+    const i = host.querySelectorAll("input").length;
+    if (i >= max) return null;
+    const row = document.createElement("div"); row.className = "idrow" + (max === 1 ? " one" : "");
+    row.innerHTML = `<span>PC ${i + 1}</span><input id="o-id-${i}" maxlength="19" spellcheck="false" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX" aria-label="Computer ID for PC ${i + 1}">`;
+    host.appendChild(row);
+    const inp = row.querySelector("input");
+    inp.value = fmtId(value || "");
+    inp.addEventListener("input", () => { inp.value = fmtId(inp.value); });
+    inp.addEventListener("paste", e => {
+      const text = (e.clipboardData || window.clipboardData).getData("text");
+      const found = text.toUpperCase().match(/[0-9A-F]{4}-?[0-9A-F]{4}-?[0-9A-F]{4}-?[0-9A-F]{4}/g);
+      if (!found) return;
+      e.preventDefault();
+      found.forEach((id, k) => {
+        let boxes = [...host.querySelectorAll("input")];
+        while (!boxes[i + k] && boxes.length < max) { addRow(""); boxes = [...host.querySelectorAll("input")]; }
+        if (boxes[i + k]) boxes[i + k].value = fmtId(id);
+      });
+      updateAdd();
+    });
+    return inp;
+  }
+  for (let i = 0; i < first; i++) addRow(values[i] || "");
+  const add = $("#o-add");
+  function updateAdd(){
+    const n = host.querySelectorAll("input").length;
+    add.hidden = !(start && start < max) || n >= max;
+    add.textContent = `Add another PC (${n} of ${max})`;
+  }
+  add.onclick = () => { const inp = addRow(""); updateAdd(); if (inp) inp.focus(); };
+  updateAdd();
+}
+
 document.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click", () => {
   current = b.dataset.buy; const p = PLANS[current];
   $("#order-title").textContent = "Buy " + p.title;
   $("#order-sum").textContent = p.price + ". You pay on ToyyibPay next, then send this order with one click.";
   $("#f-ids").hidden = p.ids === 0;
   $("#f-company").querySelector(".hint").textContent = current === "company" ? "(required: the licence covers this company)" : "(for the invoice, optional)";
-  $("label[for=o-ids]").textContent = p.ids > 1 ? "Computer IDs (up to 5, one per line)" : "Computer ID";
+  const student = current === "student";
+  $("#f-company").hidden = student; $("#f-inst").hidden = !student; $("#f-proof").hidden = !student;
+  $("#o-ids-label").textContent = p.ids > 1 ? `Computer IDs, one per PC (up to ${p.ids})` : "Computer ID";
+  $("#o-ids-hint").textContent = p.ids > 1
+    ? "Fill at least one now; PCs you do not have yet can be added later by email (you get a new key with all IDs)."
+    : "It looks like 1A2B-3C4D-5E6F-7A8B and is different on every PC.";
   const saved = load("iza-order") || {};
-  $("#o-name").value = saved.name || ""; $("#o-email").value = saved.email || ""; $("#o-phone").value = saved.phone || ""; $("#o-company").value = saved.company || "";
-  $("#o-ids").value = idFromUrl || (saved.ids || []).join("\n");
+  $("#o-name").value = saved.name || ""; $("#o-email").value = saved.email || ""; $("#o-phone").value = saved.phone || ""; $("#o-company").value = saved.company || ""; $("#o-inst").value = saved.inst || "";
+  buildIds(p.ids, idFromUrl ? [idFromUrl] : (saved.ids || []), p.start);
+  $("#idhelp").open = !$("#o-id-0") || !$("#o-id-0").value;
   $("#o-err").textContent = "";
   dlg.showModal(); $("#o-name").focus();
 }));
@@ -491,19 +581,21 @@ document.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click",
 $("#o-go").addEventListener("click", e => {
   e.preventDefault();
   const p = PLANS[current];
-  const name = $("#o-name").value.trim(), email = $("#o-email").value.trim(), phone = $("#o-phone").value.trim(), company = $("#o-company").value.trim();
-  const ids = $("#o-ids").value.toUpperCase().split(/[\s,;]+/).filter(Boolean);
+  const name = $("#o-name").value.trim(), email = $("#o-email").value.trim(), phone = $("#o-phone").value.trim(), company = current === "student" ? "" : $("#o-company").value.trim(), inst = current === "student" ? $("#o-inst").value.trim() : "";
+  const ids = [...document.querySelectorAll("#o-ids input")].map(i => i.value.trim().toUpperCase()).filter(Boolean);
   const err = m => { $("#o-err").textContent = m; };
   if (!name) return err("Enter the name for the licence.");
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err("Enter an email address; the licence file is sent there.");
   if (current === "company" && !company) return err("Enter the company name; the Company licence covers it.");
+  if (current === "student" && !inst) return err("Enter your university, college or training centre.");
   if (p.ids > 0) {
-    if (ids.length === 0) return err("Enter your computer ID. Find it under About / Support in any IZA window.");
+    if (ids.length === 0) { $("#idhelp").open = true; return err("Enter your computer ID. See how to find it below the box."); }
     if (ids.length > p.ids) return err(`This licence covers ${p.ids} PC${p.ids>1?"s":""}; ${ids.length} IDs entered.`);
     const bad = ids.find(i => !/^[0-9A-F]{4}(-[0-9A-F]{4}){3}$/.test(i));
     if (bad) return err(`"${bad}" is not a computer ID. It looks like 1A2B-3C4D-5E6F-7A8B.`);
+    if (new Set(ids).size < ids.length) return err("The same computer ID is entered twice. Each PC has its own ID.");
   }
-  const order = {plan:p.key, title:p.title, price:p.price, name, email, phone, company, ids, at:new Date().toISOString()};
+  const order = {plan:p.key, title:p.title, price:p.price, name, email, phone, company, inst, ids, at:new Date().toISOString()};
   store("iza-order", order);
   const link = SHOP.pay[p.key];
   if (link) { location.href = link; return; }

@@ -50,7 +50,9 @@ function message() {
     "Email: " + (order ? order.email : ""),
     order && order.phone ? "Phone: " + order.phone : "",
     order && order.company ? "Company: " + order.company : "",
+    order && order.inst ? "Institution: " + order.inst : "",
     order && order.ids && order.ids.length ? "Computer ID: " + order.ids.join(", ") : "",
+    order && order.plan === "student" ? "Proof: matric card / offer letter photo attached" : "",
     status === "1" ? "Payment: paid on ToyyibPay" + (bill ? ", bill " + bill : "") + (ref ? ", ref " + ref : "") : "Payment: not paid yet"];
   return lines.filter(Boolean).join("\n");
 }
@@ -61,10 +63,13 @@ const details = order ? `<div class="card"><dl>
   <dt>Name</dt><dd>${esc(order.name)}</dd>
   <dt>Email</dt><dd>${esc(order.email)}</dd>
   ${order.company ? `<dt>Company</dt><dd>${esc(order.company)}</dd>` : ""}
+  ${order.inst ? `<dt>Institution</dt><dd>${esc(order.inst)}</dd>` : ""}
   ${order.ids && order.ids.length ? `<dt>Computer ID</dt><dd>${order.ids.map(esc).join("<br>")}</dd>` : ""}
   ${bill ? `<dt>ToyyibPay bill</dt><dd>${esc(bill)}${ref ? ", ref " + esc(ref) : ""}</dd>` : ""}
 </dl></div>` : "";
-const send = `<div class="actions">
+const proof = order && order.plan === "student"
+  ? `<p><b>Student licence:</b> attach a photo of your matric card or offer letter to the WhatsApp message or email before sending.</p>` : "";
+const send = proof + `<div class="actions">
   <a class="btn" href="https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(message())}">Send order on WhatsApp</a>
   <a class="btn ghost" href="mailto:${SHOP.email}?subject=${encodeURIComponent("IZA Coordination Tools order" + (bill ? " " + bill : ""))}&body=${encodeURIComponent(message())}">Send by email</a>
 </div>`;
