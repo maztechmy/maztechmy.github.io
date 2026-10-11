@@ -415,7 +415,7 @@ const SHOP = {
   trialUrl: "https://github.com/maztechmy/maztechmy.github.io/releases/download/v0.3.0/IZA-Coordination-Tools-Setup-0.3.0.exe",   // GitHub release: tag v0.3.0
   email: "izaniofficial@gmail.com",
   whatsapp: "60149265863",
-  business: "",                      // e.g. "IZA Digital Enterprise (SSM 202603123456)"
+  business: "Maztech Resources (SSM 202103028346 / 003231867-X)",   // registered name and SSM number for the footer
   launchEnds: "2026-12-31",          // Personal is RM 99 until this date
   pay: {                             // ToyyibPay bill links, one per licence (https://toyyibpay.com/xxxxxxxx)
     launch:  "https://toyyibpay.com/IZA-Personal-Launch",
@@ -602,11 +602,11 @@ $("#o-go").addEventListener("click", e => {
     // ToyyibPay has no return link for dashboard bills: pay in a new tab, send the order from this one.
     order.pay = link; store("iza-order", order);
     window.open(link, "_blank", "noopener");
-    location.href = "thanks.html?status_id=pay";
+    location.href = "thanks.html?status_id=pay&v=" + Date.now();
     return;
   }
   // No payment link yet: send the order directly.
-  location.href = "thanks.html?status_id=0";
+  location.href = "thanks.html?status_id=0&v=" + Date.now();
 });
 </script>
 </body>
