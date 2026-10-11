@@ -418,11 +418,11 @@ const SHOP = {
   business: "",                      // e.g. "IZA Digital Enterprise (SSM 202603123456)"
   launchEnds: "2026-12-31",          // Personal is RM 99 until this date
   pay: {                             // ToyyibPay bill links, one per licence (https://toyyibpay.com/xxxxxxxx)
-    launch:  "",
-    personal:"",
-    team:    "",
-    company: "",
-    student: ""
+    launch:  "https://toyyibpay.com/IZA-Personal-Launch",
+    personal:"https://toyyibpay.com/IZA-Personal",
+    team:    "https://toyyibpay.com/IZA-Team-5",
+    company: "https://toyyibpay.com/IZA-Company-1-Year",
+    student: "https://toyyibpay.com/IZA-Student-1-Year"
   }
 };
 /* -------------------------------------------------------- */
@@ -561,7 +561,7 @@ function buildIds(max, values, start){
 document.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click", () => {
   current = b.dataset.buy; const p = PLANS[current];
   $("#order-title").textContent = "Buy " + p.title;
-  $("#order-sum").textContent = p.price + ". You pay on ToyyibPay next, then send this order with one click.";
+  $("#order-sum").textContent = p.price + ". ToyyibPay opens in a new tab for payment; this page then sends your order with one click.";
   $("#f-ids").hidden = p.ids === 0;
   $("#f-company").querySelector(".hint").textContent = current === "company" ? "(required: the licence covers this company)" : "(for the invoice, optional)";
   const student = current === "student";
@@ -598,7 +598,13 @@ $("#o-go").addEventListener("click", e => {
   const order = {plan:p.key, title:p.title, price:p.price, name, email, phone, company, inst, ids, at:new Date().toISOString()};
   store("iza-order", order);
   const link = SHOP.pay[p.key];
-  if (link) { location.href = link; return; }
+  if (link) {
+    // ToyyibPay has no return link for dashboard bills: pay in a new tab, send the order from this one.
+    order.pay = link; store("iza-order", order);
+    window.open(link, "_blank", "noopener");
+    location.href = "thanks.html?status_id=pay";
+    return;
+  }
   // No payment link yet: send the order directly.
   location.href = "thanks.html?status_id=0";
 });

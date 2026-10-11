@@ -53,7 +53,8 @@ function message() {
     order && order.inst ? "Institution: " + order.inst : "",
     order && order.ids && order.ids.length ? "Computer ID: " + order.ids.join(", ") : "",
     order && order.plan === "student" ? "Proof: matric card / offer letter photo attached" : "",
-    status === "1" ? "Payment: paid on ToyyibPay" + (bill ? ", bill " + bill : "") + (ref ? ", ref " + ref : "") : "Payment: not paid yet"];
+    status === "1" ? "Payment: paid on ToyyibPay" + (bill ? ", bill " + bill : "") + (ref ? ", ref " + ref : "")
+      : status === "pay" ? "Payment: paid on ToyyibPay (receipt attached)" : "Payment: not paid yet"];
   return lines.filter(Boolean).join("\n");
 }
 
@@ -74,7 +75,14 @@ const send = proof + `<div class="actions">
   <a class="btn ghost" href="mailto:${SHOP.email}?subject=${encodeURIComponent("IZA Coordination Tools order" + (bill ? " " + bill : ""))}&body=${encodeURIComponent(message())}">Send by email</a>
 </div>`;
 
-if (status === "1") {
+if (status === "pay") {
+  const pay = order && order.pay ? order.pay : "index.html#pricing";
+  out.innerHTML = `<h1>Pay, then send your order</h1>
+    <p>ToyyibPay opened in a new tab. Pay there with FPX online banking, and type your computer ID in its Computer ID box too.</p>
+    <p>When the payment is done, come back to this tab and send your order below. Attach the ToyyibPay receipt (screenshot or email) to the message.</p>
+    ${details}${send}
+    <p style="margin-top:22px">Payment tab did not open? <a href="${esc(pay)}" target="_blank" rel="noopener">Open ToyyibPay</a>. Your licence file arrives at ${order ? esc(order.email) : "your email"} within one working day.</p>`;
+} else if (status === "1") {
   out.innerHTML = `<h1>Payment received</h1>
     <p>Send your order details below so the licence can be made for your computer. Your licence file arrives at ${order ? esc(order.email) : "your email"} within one working day.</p>
     ${details}${send}
