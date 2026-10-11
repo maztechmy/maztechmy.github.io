@@ -21,6 +21,10 @@ p{margin:0 0 14px;color:var(--muted)}
 .card dt{color:var(--muted)}
 .card dd{margin:0;word-break:break-word}
 .actions{display:flex;flex-wrap:wrap;gap:12px}
+button.btn{cursor:pointer}
+main a{color:var(--slate-deep)}
+.alt{font-size:15px;margin-top:14px}
+#copied{color:var(--green);font-weight:600}
 .btn{display:inline-flex;align-items:center;border:2px solid var(--slate);background:var(--slate);color:#fff;font:inherit;font-weight:650;font-size:16px;padding:12px 20px;border-radius:6px;text-decoration:none}
 .btn:hover{background:var(--slate-deep)}
 .btn.ghost{background:transparent;color:var(--slate-deep)}
@@ -45,7 +49,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":
 
 function message() {
   const lines = ["IZA Coordination Tools order",
-    "Licence: " + (order ? order.title + " (" + order.price + ")" : "-"),
+    "Licence: " + (order ? order.title + ", " + order.price.replace(/[()]/g, "") : "-"),
     "Name: " + (order ? order.name : ""),
     "Email: " + (order ? order.email : ""),
     order && order.phone ? "Phone: " + order.phone : "",
@@ -70,10 +74,17 @@ const details = order ? `<div class="card"><dl>
 </dl></div>` : "";
 const proof = order && order.plan === "student"
   ? `<p><b>Student licence:</b> attach a photo of your matric card or offer letter to the WhatsApp message or email before sending.</p>` : "";
+// Email: most buyers use webmail, so offer Gmail and Outlook compose pages; the mail-app link and Copy cover the rest.
+const subject = "IZA Coordination Tools order" + (bill ? " " + bill : "");
+const enc = encodeURIComponent;
+const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(SHOP.email)}&su=${enc(subject)}&body=${enc(message())}`;
+const outlook = `https://outlook.office.com/mail/deeplink/compose?to=${enc(SHOP.email)}&subject=${enc(subject)}&body=${enc(message())}`;
 const send = proof + `<div class="actions">
-  <a class="btn" href="https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(message())}">Send order on WhatsApp</a>
-  <a class="btn ghost" href="mailto:${SHOP.email}?subject=${encodeURIComponent("IZA Coordination Tools order" + (bill ? " " + bill : ""))}&body=${encodeURIComponent(message())}">Send by email</a>
-</div>`;
+  <a class="btn" href="https://wa.me/${SHOP.whatsapp}?text=${enc(message())}" target="_blank" rel="noopener">Send order on WhatsApp</a>
+  <a class="btn ghost" href="${gmail}" target="_blank" rel="noopener">Send with Gmail</a>
+  <button class="btn ghost" type="button" id="copy">Copy order</button>
+</div>
+<p class="alt">Other email: <a href="${outlook}" target="_blank" rel="noopener">Outlook</a> or <a href="mailto:${SHOP.email}?subject=${enc(subject)}&body=${enc(message())}">your email app</a>. Or copy the order and send it to <b>${esc(SHOP.email)}</b>. <span id="copied" role="status"></span></p>`;
 
 if (status === "pay") {
   const pay = order && order.pay ? order.pay : "index.html#pricing";
@@ -98,6 +109,17 @@ if (status === "pay") {
   out.innerHTML = `<h1>Send your order</h1>
     <p>Online payment is not open yet. Send your order and you will get payment details and your licence by return.</p>${details}${send}`;
 }
+
+const cp = document.getElementById("copy");
+if (cp) cp.addEventListener("click", async () => {
+  const text = "To: " + SHOP.email + "\nSubject: " + subject + "\n\n" + message();
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+    const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
+    try { ok = document.execCommand("copy"); } catch (e2) {} t.remove();
+  }
+  document.getElementById("copied").textContent = ok ? "Order copied." : "Copy did not work; select the details above instead.";
+});
 </script>
 </body>
 </html>
