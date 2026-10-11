@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order - IZA Coordination Tools</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1D2033;--slate:#4E5170;--slate-deep:#373A55;--paper:#EDEFF4;--line:#C9CDDA;--muted:#5D6178;--red:#C9372E;--green:#2E8B57;--focus:#2F6FE0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 "Archivo",system-ui,sans-serif}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+main{max-width:640px;margin:0 auto;padding:56px 24px}
+a.home{color:var(--muted);font-size:15px}
+h1{font-variation-settings:"wdth" 118;font-size:clamp(28px,5vw,40px);line-height:1.1;margin:18px 0 12px}
+p{margin:0 0 14px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px;margin:22px 0}
+.card dl{display:grid;grid-template-columns:140px 1fr;gap:6px 14px;margin:0;font-size:15px}
+.card dt{color:var(--muted)}
+.card dd{margin:0;word-break:break-word}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;border:2px solid var(--slate);background:var(--slate);color:#fff;font:inherit;font-weight:650;font-size:16px;padding:12px 20px;border-radius:6px;text-decoration:none}
+.btn:hover{background:var(--slate-deep)}
+.btn.ghost{background:transparent;color:var(--slate-deep)}
+.state{display:inline-block;padding:3px 10px;border-radius:4px;color:#fff;font-weight:650;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <a class="home" href="index.html">IZA Coordination Tools by Maztech</a>
+  <div id="out"></div>
+</main>
+<script>
+const SHOP = { email: "izaniofficial@gmail.com", whatsapp: "60149265863" };   // keep the same as index.html
+
+const q = new URLSearchParams(location.search);
+const status = q.get("status_id");            // ToyyibPay: 1 paid, 2 pending, 3 failed. 0 = no payment link yet
+const bill = q.get("billcode") || "";
+const ref = q.get("order_id") || q.get("transaction_id") || "";
+let order = null;
+try { order = JSON.parse(localStorage.getItem("iza-order") || "null"); } catch (e) {}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function message() {
+  const lines = ["IZA Coordination Tools order",
+    "Licence: " + (order ? order.title + " (" + order.price + ")" : "-"),
+    "Name: " + (order ? order.name : ""),
+    "Email: " + (order ? order.email : ""),
+    order && order.phone ? "Phone: " + order.phone : "",
+    order && order.company ? "Company: " + order.company : "",
+    order && order.ids && order.ids.length ? "Computer ID: " + order.ids.join(", ") : "",
+    status === "1" ? "Payment: paid on ToyyibPay" + (bill ? ", bill " + bill : "") + (ref ? ", ref " + ref : "") : "Payment: not paid yet"];
+  return lines.filter(Boolean).join("\n");
+}
+
+const out = document.getElementById("out");
+const details = order ? `<div class="card"><dl>
+  <dt>Licence</dt><dd>${esc(order.title)}, ${esc(order.price)}</dd>
+  <dt>Name</dt><dd>${esc(order.name)}</dd>
+  <dt>Email</dt><dd>${esc(order.email)}</dd>
+  ${order.company ? `<dt>Company</dt><dd>${esc(order.company)}</dd>` : ""}
+  ${order.ids && order.ids.length ? `<dt>Computer ID</dt><dd>${order.ids.map(esc).join("<br>")}</dd>` : ""}
+  ${bill ? `<dt>ToyyibPay bill</dt><dd>${esc(bill)}${ref ? ", ref " + esc(ref) : ""}</dd>` : ""}
+</dl></div>` : "";
+const send = `<div class="actions">
+  <a class="btn" href="https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(message())}">Send order on WhatsApp</a>
+  <a class="btn ghost" href="mailto:${SHOP.email}?subject=${encodeURIComponent("IZA Coordination Tools order" + (bill ? " " + bill : ""))}&body=${encodeURIComponent(message())}">Send by email</a>
+</div>`;
+
+if (status === "1") {
+  out.innerHTML = `<h1>Payment received</h1>
+    <p>Send your order details below so the licence can be made for your computer. Your licence file arrives at ${order ? esc(order.email) : "your email"} within one working day.</p>
+    ${details}${send}
+    <p style="margin-top:22px">ToyyibPay also emails you a receipt.</p>`;
+} else if (status === "2") {
+  out.innerHTML = `<h1>Payment pending</h1>
+    <p>Your bank has not confirmed the payment yet. Once ToyyibPay emails your receipt, send the order below and include the receipt.</p>${details}${send}`;
+} else if (status === "3") {
+  out.innerHTML = `<h1>Payment did not go through</h1>
+    <p>Nothing was charged. Go back and try again, or pay with another bank.</p>
+    <div class="actions"><a class="btn" href="index.html#pricing">Back to pricing</a></div>`;
+} else {
+  out.innerHTML = `<h1>Send your order</h1>
+    <p>Online payment is not open yet. Send your order and you will get payment details and your licence by return.</p>${details}${send}`;
+}
+</script>
+</body>
+</html>
